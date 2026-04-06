@@ -1,0 +1,112 @@
+{
+  "info": {
+    "name": "Enterprise Workflow Engine Test Suite",
+    "description": "End-to-End test cases for the 14-Table Microsoft RulesEngine Workflow architecture.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7196",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Admin Configuration",
+      "description": "Endpoints to configure the portals and rules.",
+      "item": [
+        {
+          "name": "1. Create Application (Portal)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"applicationCode\": \"PROCURE\",\n    \"applicationName\": \"Global Procurement Setup\",\n    \"isActive\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Admin/applications", "host": ["{{baseUrl}}"], "path": ["api", "Admin", "applications"] }
+          }
+        },
+        {
+          "name": "2. Create Workflow",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"applicationId\": 1,\n    \"workflowName\": \"Purchase Order Approval\",\n    \"isActive\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Admin/workflows", "host": ["{{baseUrl}}"], "path": ["api", "Admin", "workflows"] }
+          }
+        },
+        {
+          "name": "3. Create Level 1",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workflowId\": 1,\n    \"levelNumber\": 1,\n    \"levelName\": \"Manager Review\",\n    \"approvalStrategy\": \"AnyOne\",\n    \"minApprovalsRequired\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Admin/levels", "host": ["{{baseUrl}}"], "path": ["api", "Admin", "levels"] }
+          }
+        },
+        {
+          "name": "4. Create Rule (Amount > 5000)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"levelId\": 1,\n    \"ruleExpression\": \"Amount > 5000\",\n    \"priority\": 1,\n    \"isActive\": true,\n    \"approvers\": [\n        { \"approverType\": \"User\", \"approverValue\": \"VP_Finance\" }\n    ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Admin/rules", "host": ["{{baseUrl}}"], "path": ["api", "Admin", "rules"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Runtime Execution",
+      "description": "Endpoints to start a flow and approve/reject.",
+      "item": [
+        {
+          "name": "1. Start Workflow Instance",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workflowName\": \"Purchase Order Approval Flow\",\n    \"applicationCode\": \"PROCURE\",\n    \"requestId\": \"PO-9999\",\n    \"submittedBy\": \"Employee_John\",\n    \"parameters\": {\n        \"Amount\": 15000,\n        \"Department\": \"IT\"\n    }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Workflow/start", "host": ["{{baseUrl}}"], "path": ["api", "Workflow", "start"] }
+          }
+        },
+        {
+          "name": "2. Approve Level 1",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"instanceId\": 1,\n    \"userId\": \"VP_Finance\",\n    \"remarks\": \"Looks good. Approved!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Workflow/approve", "host": ["{{baseUrl}}"], "path": ["api", "Workflow", "approve"] }
+          }
+        },
+        {
+          "name": "3. Reject Request",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"instanceId\": 1,\n    \"userId\": \"VP_Finance\",\n    \"remarks\": \"Amount is too high. Rejecting.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Workflow/reject", "host": ["{{baseUrl}}"], "path": ["api", "Workflow", "reject"] }
+          }
+        }
+      ]
+    }
+  ]
+}
