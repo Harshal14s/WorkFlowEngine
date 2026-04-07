@@ -60,14 +60,29 @@ namespace WorkflowEngine.RuleEngine.Engines
                         case JsonValueKind.String:
                         default:
                             finalValue = jsonElement.GetString();
-                            // Attempt to parse string to double if it represents a number
                             if (double.TryParse(finalValue?.ToString(), out double parsedNum))
                             {
                                 finalValue = parsedNum;
                             }
+                            else if (bool.TryParse(finalValue?.ToString(), out bool parsedBool))
+                            {
+                                finalValue = parsedBool;
+                            }
                             break;
                     }
                 }
+                else if (finalValue is string strValue) // FIX: When loading from DB, they are standard C# strings!
+                {
+                    if (double.TryParse(strValue, out double num))
+                    {
+                        finalValue = num;
+                    }
+                    else if (bool.TryParse(strValue, out bool b))
+                    {
+                        finalValue = b;
+                    }
+                }
+                
                 ruleParams.Add(new RuleParameter(p.Key, finalValue));
             }
 

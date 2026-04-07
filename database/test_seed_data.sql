@@ -5,7 +5,7 @@
 -- It creates 1 Application ("Procurement"), 1 Workflow ("Purchase Order Approval"),
 -- 2 Approval Levels, and 3 Rules with complex Microsoft RulesEngine expressions.
 
-USE [WorkflowEngine]; -- Change this if your DB name is different!
+USE WorkflowEngineDb; -- Change this if your DB name is different!
 
 -- 1. Create the Application (The Portal)
 INSERT INTO Applications (ApplicationCode, ApplicationName, IsActive)
