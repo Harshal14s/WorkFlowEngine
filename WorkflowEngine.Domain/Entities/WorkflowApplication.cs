@@ -16,6 +16,6 @@ namespace WorkflowEngine.Domain.Entities
         public string ApplicationName { get; set; }
         
         public bool IsActive { get; set; }
-        public ICollection<Workflow> Workflows { get; set; }
+        public ICollection<Workflow>? Workflows { get; set; }
     }
 }

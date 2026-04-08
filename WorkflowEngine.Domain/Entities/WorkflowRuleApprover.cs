@@ -16,6 +16,6 @@ namespace WorkflowEngine.Domain.Entities
         public string ApproverValue { get; set; }
 
         [ForeignKey("RuleId")]
-        public WorkflowRule Rule { get; set; }
+        public WorkflowRule? Rule { get; set; }
     }
 }

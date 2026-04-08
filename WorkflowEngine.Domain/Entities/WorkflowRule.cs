@@ -16,7 +16,7 @@ namespace WorkflowEngine.Domain.Entities
         public bool IsActive { get; set; }
 
         [ForeignKey("LevelId")]
-        public WorkflowLevel Level { get; set; }
-        public ICollection<WorkflowRuleApprover> Approvers { get; set; }
+        public WorkflowLevel? Level { get; set; }
+        public ICollection<WorkflowRuleApprover>? Approvers { get; set; }
     }
 }

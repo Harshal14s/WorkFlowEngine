@@ -22,6 +22,61 @@ namespace WorkflowEngine.Application.Services
             _ruleEngine = ruleEngine;
         }
 
+        public async Task<List<PendingApprovalResponse>> GetPendingApprovals(string userId)
+        {
+            // Join: Assignments → Instances → Workflows
+            //CHANGE: We have Commented Code here for UserId 
+            var query = await (
+                from a in _context.WorkflowAssignments
+                join i in _context.WorkflowInstances on a.InstanceId equals i.InstanceId
+                join w in _context.Workflows on i.WorkflowId equals w.WorkflowId
+                where /*a.ApproverUserId == userId &&*/ a.Status == "Pending" && i.Status == "Pending"
+                orderby a.AssignedDate descending
+                select new
+                {
+                    a.AssignmentId,
+                    a.InstanceId,
+                    a.LevelNumber,
+                    a.Status,
+                    a.AssignedDate,
+                    i.RequestId,
+                    i.ApplicationCode,
+                    i.CreatedBy,
+                    i.CreatedDate,
+                    i.CurrentLevel,
+                    InstanceStatus = i.Status,
+                    i.WorkflowId,
+                    w.WorkflowName
+                }
+            ).ToListAsync();
+
+            // Load parameters for each instance
+            var instanceIds = query.Select(q => q.InstanceId).Distinct().ToList();
+            var allParams = await _context.WorkflowInstanceParameters
+                .Where(p => instanceIds.Contains(p.InstanceId))
+                .ToListAsync();
+
+            return query.Select(q => new PendingApprovalResponse
+            {
+                AssignmentId  = q.AssignmentId,
+                InstanceId    = q.InstanceId,
+                RequestId     = q.RequestId,
+                ApplicationCode = q.ApplicationCode,
+                CreatedBy     = q.CreatedBy,
+                CreatedDate   = q.CreatedDate,
+                CurrentLevel  = q.CurrentLevel,
+                InstanceStatus = q.InstanceStatus,
+                WorkflowId    = q.WorkflowId,
+                WorkflowName  = q.WorkflowName,
+                LevelNumber   = q.LevelNumber,
+                AssignmentStatus = q.Status,
+                AssignedDate  = q.AssignedDate,
+                Parameters    = allParams
+                    .Where(p => p.InstanceId == q.InstanceId)
+                    .ToDictionary(p => p.ParameterName, p => p.ParameterValue)
+            }).ToList();
+        }
+
         public async Task<int> StartWorkflow(StartWorkflowRequest request)
         {
             var workflow = await _context.Workflows.FirstOrDefaultAsync(w => w.WorkflowName == request.WorkflowName && w.IsActive);

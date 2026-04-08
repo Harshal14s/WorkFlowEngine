@@ -19,6 +19,6 @@ namespace WorkflowEngine.Domain.Entities
         public string TransitionType { get; set; } // 'Next', 'Previous', 'Specific', 'Dynamic'
 
         [ForeignKey("WorkflowId")]
-        public Workflow Workflow { get; set; }
+        public Workflow? Workflow { get; set; }
     }
 }

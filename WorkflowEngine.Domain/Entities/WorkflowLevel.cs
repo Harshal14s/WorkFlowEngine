@@ -20,7 +20,7 @@ namespace WorkflowEngine.Domain.Entities
         public int MinApprovalsRequired { get; set; }
 
         [ForeignKey("WorkflowId")]
-        public Workflow Workflow { get; set; }
-        public ICollection<WorkflowRule> Rules { get; set; }
+        public Workflow? Workflow { get; set; }
+        public ICollection<WorkflowRule>? Rules { get; set; }
     }
 }

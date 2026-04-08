@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using WorkflowEngine.Application.DTOs;
@@ -16,6 +17,13 @@ namespace WorkflowEngine.Api.Controllers
         {
             _service = service;
         }   
+
+        [HttpGet("pending/{userId}")]
+        public async Task<IActionResult> GetPendingApprovals(string userId)
+        {
+            var result = await _service.GetPendingApprovals(userId);
+            return Ok(result);
+        }
 
         [HttpPost("start")]
         public async Task<IActionResult> Start(StartWorkflowRequest request)

@@ -17,7 +17,7 @@ namespace WorkflowEngine.Domain.Entities
         public bool IsActive { get; set; }
 
         [ForeignKey("ApplicationId")]
-        public WorkflowApplication Application { get; set; }
-        public ICollection<WorkflowLevel> Levels { get; set; }
+        public WorkflowApplication? Application { get; set; }
+        public ICollection<WorkflowLevel>? Levels { get; set; }
     }
 }
