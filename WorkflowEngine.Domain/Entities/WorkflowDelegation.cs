@@ -1,9 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
+using WorkflowEngine.Domain.Base;
+
 namespace WorkflowEngine.Domain.Entities
 {
-    public class WorkflowDelegation
+    public class WorkflowDelegation : MetaFields
     {
         [Key]
         public int DelegationId { get; set; }
@@ -17,7 +19,7 @@ namespace WorkflowEngine.Domain.Entities
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         
-        public bool IsActive { get; set; }
-        public DateTime CreatedDate { get; set; }
+
+
     }
 }

@@ -4,7 +4,7 @@
 -- This script safely deletes all data from your 14 Workflow Engine tables.
 -- It executes in reverse-dependency order to respect all Foreign Key Constraints.
 
-USE [WorkflowEngine]; -- Change this if your DB name is different!
+USE [WorkflowEngineDb]; -- Change this if your DB name is different!
 
 -- 1. Delete all Runtime Data (Child tables first)
 PRINT 'Deleting runtime data...';

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using WorkflowEngine.Application.DTOs;
 using WorkflowEngine.Application.Interfaces;
 using WorkflowEngine.Domain.Entities;
+using WorkflowEngine.Domain.Base;
+using WorkflowEngine.Domain.Enums;
 using WorkflowEngine.Infrastructure.Data;
 using WorkflowEngine.RuleEngine.Engines;
 
@@ -30,21 +32,21 @@ namespace WorkflowEngine.Application.Services
                 from a in _context.WorkflowAssignments
                 join i in _context.WorkflowInstances on a.InstanceId equals i.InstanceId
                 join w in _context.Workflows on i.WorkflowId equals w.WorkflowId
-                where /*a.ApproverUserId == userId &&*/ a.Status == "Pending" && i.Status == "Pending"
-                orderby a.AssignedDate descending
+                where /*a.ApproverUserId == userId &&*/ a.AssignmentStatus == WorkflowStatus.Pending && i.WorkflowState == WorkflowStatus.Pending
+                orderby a.created_date descending
                 select new
                 {
                     a.AssignmentId,
                     a.InstanceId,
                     a.LevelNumber,
-                    a.Status,
-                    a.AssignedDate,
+                    Status = a.AssignmentStatus,
+                    AssignedDate = a.created_date,
                     i.RequestId,
                     i.ApplicationCode,
-                    i.CreatedBy,
-                    i.CreatedDate,
+                    CreatedBy = i.created_by,
+                    CreatedDate = i.created_date ?? DateTime.MinValue,
                     i.CurrentLevel,
-                    InstanceStatus = i.Status,
+                    InstanceStatus = i.WorkflowState.ToString(),
                     i.WorkflowId,
                     w.WorkflowName
                 }
@@ -69,8 +71,8 @@ namespace WorkflowEngine.Application.Services
                 WorkflowId    = q.WorkflowId,
                 WorkflowName  = q.WorkflowName,
                 LevelNumber   = q.LevelNumber,
-                AssignmentStatus = q.Status,
-                AssignedDate  = q.AssignedDate,
+                AssignmentStatus = q.Status.ToString(),
+                AssignedDate  = q.AssignedDate ?? DateTime.MinValue,
                 Parameters    = allParams
                     .Where(p => p.InstanceId == q.InstanceId)
                     .ToDictionary(p => p.ParameterName, p => p.ParameterValue)
@@ -79,7 +81,7 @@ namespace WorkflowEngine.Application.Services
 
         public async Task<int> StartWorkflow(StartWorkflowRequest request)
         {
-            var workflow = await _context.Workflows.FirstOrDefaultAsync(w => w.WorkflowName == request.WorkflowName && w.IsActive);
+            var workflow = await _context.Workflows.FirstOrDefaultAsync(w => w.WorkflowName == request.WorkflowName && w.status == EntityStatus.Active);
             if (workflow == null) throw new Exception("Workflow not found.");
 
             var instance = new WorkflowInstance
@@ -88,9 +90,8 @@ namespace WorkflowEngine.Application.Services
                 ApplicationCode = request.ApplicationCode,
                 RequestId = request.RequestId,
                 CurrentLevel = 1,
-                Status = "Pending",
-                CreatedBy = request.SubmittedBy,
-                CreatedDate = DateTime.UtcNow
+                WorkflowState = WorkflowStatus.Pending,
+                created_by = request.SubmittedBy
             };
 
             _context.WorkflowInstances.Add(instance);
@@ -121,7 +122,7 @@ namespace WorkflowEngine.Application.Services
 
             // Delegation check
             var activeDelegations = await _context.WorkflowDelegations
-                .Where(d => d.IsActive && d.StartDate <= DateTime.UtcNow && d.EndDate >= DateTime.UtcNow)
+                .Where(d => d.status == EntityStatus.Active && d.StartDate <= DateTime.UtcNow && d.EndDate >= DateTime.UtcNow)
                 .ToListAsync();
 
             var levelConfig = await _context.WorkflowLevels
@@ -146,15 +147,14 @@ namespace WorkflowEngine.Application.Services
                             finalApprover = delegation.ToUserId;
                             await _context.WorkflowHistory.AddAsync(new WorkflowHistory {
                                 InstanceId = instanceId, LevelNumber = levelNumer, UserId = a.ApproverValue,
-                                Action = "Delegated", Remarks = $"Automatically delegated to {delegation.ToUserId}", ActionDate = DateTime.UtcNow
+                                Action = WorkflowAction.Approve, Remarks = $"Automatically delegated to {delegation.ToUserId}"
                             });
                         }
 
-                        // Prevent duplicate assignments for the same person at the same level
                         if (!await _context.WorkflowAssignments.AnyAsync(w => w.InstanceId == instanceId && w.LevelNumber == levelNumer && w.ApproverUserId == finalApprover))
                         {
                             _context.WorkflowAssignments.Add(new WorkflowAssignment {
-                                InstanceId = instanceId, LevelNumber = levelNumer, ApproverUserId = finalApprover, Status = "Pending", AssignedDate = DateTime.UtcNow
+                                InstanceId = instanceId, LevelNumber = levelNumer, ApproverUserId = finalApprover, AssignmentStatus = WorkflowStatus.Pending
                             });
                         }
                     }
@@ -167,49 +167,49 @@ namespace WorkflowEngine.Application.Services
         public async Task Approve(ApproveRequest request)
         {
             var assignment = await _context.WorkflowAssignments
-                .FirstOrDefaultAsync(x => x.InstanceId == request.InstanceId && x.ApproverUserId == request.UserId && x.Status == "Pending");
+                .FirstOrDefaultAsync(x => x.InstanceId == request.InstanceId && x.ApproverUserId == request.UserId && x.AssignmentStatus == WorkflowStatus.Pending);
 
             if (assignment == null) throw new Exception("Pending assignment not found.");
 
-            assignment.Status = "Approved";
+            assignment.AssignmentStatus = WorkflowStatus.Approved;
             assignment.ActionDate = DateTime.UtcNow;
 
             _context.WorkflowHistory.Add(new WorkflowHistory {
                 InstanceId = request.InstanceId, LevelNumber = assignment.LevelNumber, 
-                UserId = request.UserId, Action = "Approved", Remarks = request.Remarks, ActionDate = DateTime.UtcNow
+                UserId = request.UserId, Action = WorkflowAction.Approve, Remarks = request.Remarks
             });
 
             await _context.SaveChangesAsync();
-            await ProcessTransition(request.InstanceId, assignment.LevelNumber, "Approve");
+            await ProcessTransition(request.InstanceId, assignment.LevelNumber, WorkflowAction.Approve);
         }
 
         public async Task Reject(ApproveRequest request) // Reusing approve request for DTO
         {
             var assignment = await _context.WorkflowAssignments
-                .FirstOrDefaultAsync(x => x.InstanceId == request.InstanceId && x.ApproverUserId == request.UserId && x.Status == "Pending");
+                .FirstOrDefaultAsync(x => x.InstanceId == request.InstanceId && x.ApproverUserId == request.UserId && x.AssignmentStatus == WorkflowStatus.Pending);
 
             if (assignment == null) throw new Exception("Pending assignment not found.");
 
-            assignment.Status = "Rejected";
+            assignment.AssignmentStatus = WorkflowStatus.Rejected;
             assignment.ActionDate = DateTime.UtcNow;
 
             _context.WorkflowHistory.Add(new WorkflowHistory {
                 InstanceId = request.InstanceId, LevelNumber = assignment.LevelNumber, 
-                UserId = request.UserId, Action = "Rejected", Remarks = request.Remarks, ActionDate = DateTime.UtcNow
+                UserId = request.UserId, Action = WorkflowAction.Reject, Remarks = request.Remarks
             });
 
             await _context.SaveChangesAsync();
-            await ProcessTransition(request.InstanceId, assignment.LevelNumber, "Reject");
+            await ProcessTransition(request.InstanceId, assignment.LevelNumber, WorkflowAction.Reject);
         }
 
-        private async Task ProcessTransition(int instanceId, int currentLevel, string action)
+        private async Task ProcessTransition(int instanceId, int currentLevel, WorkflowAction action)
         {
             var instance = await _context.WorkflowInstances.FindAsync(instanceId);
             var levelConfig = await _context.WorkflowLevels.FirstOrDefaultAsync(l => l.WorkflowId == instance.WorkflowId && l.LevelNumber == currentLevel);
 
             bool levelActionCompleted = false;
 
-            if (action == "Reject")
+            if (action == WorkflowAction.Reject)
             {
                 // Typically rejection by one person is rejection for the whole level
                 levelActionCompleted = true;
@@ -217,7 +217,7 @@ namespace WorkflowEngine.Application.Services
             else // Approve
             {
                 var assignments = await _context.WorkflowAssignments.Where(a => a.InstanceId == instanceId && a.LevelNumber == currentLevel).ToListAsync();
-                var approvedCount = assignments.Count(a => a.Status == "Approved");
+                var approvedCount = assignments.Count(a => a.AssignmentStatus == WorkflowStatus.Approved);
                 var totalCount = assignments.Count;
 
                 levelActionCompleted = levelConfig.ApprovalStrategy switch
@@ -238,13 +238,13 @@ namespace WorkflowEngine.Application.Services
                 {
                     if (transition.ToLevel == 0) // Logical end for 'Approve'
                     {
-                        instance.Status = action == "Approve" ? "Completed" : "Rejected";
+                        instance.WorkflowState = action == WorkflowAction.Approve ? WorkflowStatus.Completed : WorkflowStatus.Rejected;
                         instance.CompletedDate = DateTime.UtcNow;
                     }
                     else
                     {
                         instance.CurrentLevel = transition.ToLevel;
-                        instance.Status = "Pending";
+                        instance.WorkflowState = WorkflowStatus.Pending;
                         
                         // Re-trigger assignment for the new level
                         var parameters = await _context.WorkflowInstanceParameters
@@ -252,7 +252,7 @@ namespace WorkflowEngine.Application.Services
                         await AssignApprovers(instanceId, transition.ToLevel, parameters);
                     }
                 }
-                else if (action == "Approve")
+                else if (action == WorkflowAction.Approve)
                 {
                     // Fallback: move to next increment if no specific transition exists
                     var nextLevel = currentLevel + 1;
@@ -266,14 +266,14 @@ namespace WorkflowEngine.Application.Services
                     }
                     else
                     {
-                        instance.Status = "Completed";
+                        instance.WorkflowState = WorkflowStatus.Completed;
                         instance.CompletedDate = DateTime.UtcNow;
                     }
                 }
-                else if (action == "Reject")
+                else if (action == WorkflowAction.Reject)
                 {
                     // Fallback: If no custom transition exists, a rejection at any level rejects the entire workflow.
-                    instance.Status = "Rejected";
+                    instance.WorkflowState = WorkflowStatus.Rejected;
                     instance.CompletedDate = DateTime.UtcNow;
                 }
 

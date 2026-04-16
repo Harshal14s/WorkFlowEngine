@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using WorkflowEngine.Domain.Entities;
+using WorkflowEngine.Domain.Base;
+using System.Threading;
+using System.Threading.Tasks;
+using System;
+using System.Linq;
 
 namespace WorkflowEngine.Infrastructure.Data
 {
@@ -118,6 +123,28 @@ namespace WorkflowEngine.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(e => e.TargetNodeId)
                 .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.Entity is MetaFields && (
+                    e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                var entity = (MetaFields)entityEntry.Entity;
+                if (entityEntry.State == EntityState.Added)
+                {
+                    entity.created_date = DateTime.UtcNow;
+                }
+                else
+                {
+                    entity.updated_date = DateTime.UtcNow;
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }

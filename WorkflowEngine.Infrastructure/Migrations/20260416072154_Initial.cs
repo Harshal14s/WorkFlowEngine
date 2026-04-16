@@ -19,7 +19,11 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ApplicationCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ApplicationName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,8 +40,11 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     ToUserId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -53,7 +60,11 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     ApplicationId = table.Column<int>(type: "int", nullable: false),
                     WorkflowName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Version = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -75,7 +86,12 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     NodeType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Label = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PosX = table.Column<double>(type: "float", nullable: true),
-                    PosY = table.Column<double>(type: "float", nullable: true)
+                    PosY = table.Column<double>(type: "float", nullable: true),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,10 +114,13 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     ApplicationCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     RequestId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CurrentLevel = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CompletedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    WorkflowState = table.Column<int>(type: "int", nullable: false),
+                    CompletedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -124,7 +143,12 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     LevelNumber = table.Column<int>(type: "int", nullable: false),
                     LevelName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ApprovalStrategy = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    MinApprovalsRequired = table.Column<int>(type: "int", nullable: false)
+                    MinApprovalsRequired = table.Column<int>(type: "int", nullable: false),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -146,8 +170,13 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     WorkflowId = table.Column<int>(type: "int", nullable: false),
                     FromLevel = table.Column<int>(type: "int", nullable: false),
                     ToLevel = table.Column<int>(type: "int", nullable: false),
-                    Action = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    TransitionType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    Action = table.Column<int>(type: "int", nullable: false),
+                    TransitionType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -168,7 +197,12 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     WorkflowId = table.Column<int>(type: "int", nullable: true),
                     SourceNodeId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     TargetNodeId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Label = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    Label = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -202,7 +236,12 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     InstanceId = table.Column<int>(type: "int", nullable: true),
                     ActionBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LogDetails = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -224,9 +263,13 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     InstanceId = table.Column<int>(type: "int", nullable: false),
                     LevelNumber = table.Column<int>(type: "int", nullable: false),
                     ApproverUserId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    AssignedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ActionDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    AssignmentStatus = table.Column<int>(type: "int", nullable: false),
+                    ActionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -248,9 +291,13 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     InstanceId = table.Column<int>(type: "int", nullable: false),
                     LevelNumber = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Action = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Action = table.Column<int>(type: "int", nullable: false),
                     Remarks = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ActionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -271,7 +318,12 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InstanceId = table.Column<int>(type: "int", nullable: false),
                     ParameterName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ParameterValue = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ParameterValue = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -293,7 +345,11 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     LevelId = table.Column<int>(type: "int", nullable: false),
                     RuleExpression = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Priority = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -314,7 +370,12 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RuleId = table.Column<int>(type: "int", nullable: false),
                     ApproverType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ApproverValue = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    ApproverValue = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

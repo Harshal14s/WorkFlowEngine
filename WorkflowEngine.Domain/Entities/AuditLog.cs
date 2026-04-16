@@ -2,9 +2,11 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using WorkflowEngine.Domain.Base;
+
 namespace WorkflowEngine.Domain.Entities
 {
-    public class AuditLog
+    public class AuditLog : MetaFields
     {
         [Key]
         public int LogId { get; set; }

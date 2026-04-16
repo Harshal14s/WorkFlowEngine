@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using WorkflowEngine.Domain.Base;
+
 namespace WorkflowEngine.Domain.Entities
 {
-    public class WorkflowInstanceParameter
+    public class WorkflowInstanceParameter : MetaFields
     {
         [Key]
         public int Id { get; set; }

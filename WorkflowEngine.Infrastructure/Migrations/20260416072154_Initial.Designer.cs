@@ -12,7 +12,7 @@ using WorkflowEngine.Infrastructure.Data;
 namespace WorkflowEngine.Infrastructure.Migrations
 {
     [DbContext(typeof(WorkflowDbContext))]
-    [Migration("20260402124044_Initial")]
+    [Migration("20260416072154_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -48,6 +48,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("LogId");
 
                     b.HasIndex("InstanceId");
@@ -66,9 +81,6 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<int>("ApplicationId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Version")
                         .HasColumnType("int");
 
@@ -76,6 +88,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("WorkflowId");
 
@@ -102,8 +129,20 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ApplicationId");
 
@@ -126,8 +165,8 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("AssignedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("AssignmentStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("InstanceId")
                         .HasColumnType("int");
@@ -135,10 +174,20 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<int>("LevelNumber")
                         .HasColumnType("int");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("AssignmentId");
 
@@ -155,9 +204,6 @@ namespace WorkflowEngine.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DelegationId"));
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -166,9 +212,6 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -176,6 +219,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("DelegationId");
 
@@ -205,6 +263,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
 
                     b.Property<int?>("WorkflowId")
                         .HasColumnType("int");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("EdgeId");
 
@@ -242,6 +315,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<int?>("WorkflowId")
                         .HasColumnType("int");
 
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("NodeId");
 
                     b.HasIndex("WorkflowId");
@@ -257,13 +345,8 @@ namespace WorkflowEngine.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HistoryId"));
 
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("ActionDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Action")
+                        .HasColumnType("int");
 
                     b.Property<int>("InstanceId")
                         .HasColumnType("int");
@@ -279,6 +362,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("HistoryId");
 
@@ -303,14 +401,6 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<DateTime?>("CompletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("CurrentLevel")
                         .HasColumnType("int");
 
@@ -319,13 +409,26 @@ namespace WorkflowEngine.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<int>("WorkflowId")
                         .HasColumnType("int");
+
+                    b.Property<int>("WorkflowState")
+                        .HasColumnType("int");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("InstanceId");
 
@@ -353,6 +456,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<string>("ParameterValue")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -388,6 +506,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<int>("WorkflowId")
                         .HasColumnType("int");
 
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("LevelId");
 
                     b.HasIndex("WorkflowId");
@@ -403,9 +536,6 @@ namespace WorkflowEngine.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RuleId"));
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<int>("LevelId")
                         .HasColumnType("int");
 
@@ -415,6 +545,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<string>("RuleExpression")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("RuleId");
 
@@ -444,6 +589,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
                     b.Property<int>("RuleId")
                         .HasColumnType("int");
 
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RuleId");
@@ -459,10 +619,8 @@ namespace WorkflowEngine.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransitionId"));
 
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<int>("Action")
+                        .HasColumnType("int");
 
                     b.Property<int>("FromLevel")
                         .HasColumnType("int");
@@ -477,6 +635,21 @@ namespace WorkflowEngine.Infrastructure.Migrations
 
                     b.Property<int>("WorkflowId")
                         .HasColumnType("int");
+
+                    b.Property<string>("created_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("updated_by")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("updated_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("TransitionId");
 

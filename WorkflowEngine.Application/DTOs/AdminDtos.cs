@@ -24,7 +24,7 @@ namespace WorkflowEngine.Application.DTOs
         public string WorkflowName { get; set; }
         public string CreatedBy { get; set; }
         public int CurrentLevel { get; set; }
-        public string Status { get; set; }
+        public string WorkflowState { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 
@@ -45,6 +45,10 @@ namespace WorkflowEngine.Application.DTOs
         public string ApplicationCode { get; set; }
         public string ApplicationName { get; set; }
         public bool IsActive { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -66,6 +70,8 @@ namespace WorkflowEngine.Application.DTOs
         public string WorkflowName { get; set; }
         public int Version { get; set; }
         public bool IsActive { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime? CreatedDate { get; set; }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -171,7 +177,7 @@ namespace WorkflowEngine.Application.DTOs
         public string ApplicationCode { get; set; }
         public string RequestId { get; set; }
         public int CurrentLevel { get; set; }
-        public string Status { get; set; }
+        public string WorkflowState { get; set; }
         public string CreatedBy { get; set; }
     }
 
@@ -182,7 +188,7 @@ namespace WorkflowEngine.Application.DTOs
         public string ApplicationCode { get; set; }
         public string RequestId { get; set; }
         public int CurrentLevel { get; set; }
-        public string Status { get; set; }
+        public string WorkflowState { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? CompletedDate { get; set; }
@@ -216,7 +222,7 @@ namespace WorkflowEngine.Application.DTOs
         public int InstanceId { get; set; }
         public int LevelNumber { get; set; }
         public string ApproverUserId { get; set; }
-        public string Status { get; set; }
+        public string AssignmentStatus { get; set; }
     }
 
     public class AssignmentResponse
@@ -225,7 +231,7 @@ namespace WorkflowEngine.Application.DTOs
         public int InstanceId { get; set; }
         public int LevelNumber { get; set; }
         public string ApproverUserId { get; set; }
-        public string Status { get; set; }
+        public string AssignmentStatus { get; set; }
         public DateTime AssignedDate { get; set; }
         public DateTime? ActionDate { get; set; }
     }

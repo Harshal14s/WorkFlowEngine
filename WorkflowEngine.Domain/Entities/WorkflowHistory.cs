@@ -2,9 +2,13 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using WorkflowEngine.Domain.Base;
+
+using WorkflowEngine.Domain.Enums;
+
 namespace WorkflowEngine.Domain.Entities
 {
-    public class WorkflowHistory
+    public class WorkflowHistory : MetaFields
     {
         [Key]
         public int HistoryId { get; set; }
@@ -14,10 +18,9 @@ namespace WorkflowEngine.Domain.Entities
         [MaxLength(100)]
         public string UserId { get; set; }
         
-        [MaxLength(20)]
-        public string Action { get; set; }
+        public WorkflowAction Action { get; set; }
         public string Remarks { get; set; }
-        public DateTime ActionDate { get; set; }
+
 
         [ForeignKey("InstanceId")]
         public WorkflowInstance Instance { get; set; }

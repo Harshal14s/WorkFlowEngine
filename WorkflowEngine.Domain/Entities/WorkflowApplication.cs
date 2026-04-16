@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
+using WorkflowEngine.Domain.Base;
+
 namespace WorkflowEngine.Domain.Entities
 {
-    public class WorkflowApplication
+    public class WorkflowApplication : MetaFields
     {
         [Key]
         public int ApplicationId { get; set; }
@@ -15,7 +17,7 @@ namespace WorkflowEngine.Domain.Entities
         [MaxLength(200)]
         public string ApplicationName { get; set; }
         
-        public bool IsActive { get; set; }
+
         public ICollection<Workflow>? Workflows { get; set; }
     }
 }

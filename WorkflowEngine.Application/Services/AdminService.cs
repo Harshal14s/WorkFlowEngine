@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using WorkflowEngine.Application.DTOs;
 using WorkflowEngine.Application.Interfaces;
 using WorkflowEngine.Domain.Entities;
+using WorkflowEngine.Domain.Base;
+using WorkflowEngine.Domain.Enums;
 using WorkflowEngine.Infrastructure.Data;
 
 namespace WorkflowEngine.Application.Services
@@ -25,29 +27,31 @@ namespace WorkflowEngine.Application.Services
         {
             var instances = await _context.WorkflowInstances.ToListAsync();
 
-            var recent = await (
+            var recentRaw = await (
                 from i in _context.WorkflowInstances
                 join w in _context.Workflows on i.WorkflowId equals w.WorkflowId
-                orderby i.CreatedDate descending
-                select new RecentInstanceResponse
-                {
-                    InstanceId    = i.InstanceId,
-                    RequestId     = i.RequestId,
-                    ApplicationCode = i.ApplicationCode,
-                    WorkflowName  = w.WorkflowName,
-                    CreatedBy     = i.CreatedBy,
-                    CurrentLevel  = i.CurrentLevel,
-                    Status        = i.Status,
-                    CreatedDate   = i.CreatedDate
-                }
+                orderby i.created_date descending
+                select new { i, w.WorkflowName }
             ).Take(20).ToListAsync();
+
+            var recent = recentRaw.Select(x => new RecentInstanceResponse
+            {
+                InstanceId    = x.i.InstanceId,
+                RequestId     = x.i.RequestId,
+                ApplicationCode = x.i.ApplicationCode,
+                WorkflowName  = x.WorkflowName,
+                CreatedBy     = x.i.created_by,
+                CurrentLevel  = x.i.CurrentLevel,
+                WorkflowState = x.i.WorkflowState.ToString(),
+                CreatedDate   = x.i.created_date ?? DateTime.MinValue
+            }).ToList();
 
             return new DashboardStatsResponse
             {
                 TotalRequests    = instances.Count,
-                PendingRequests  = instances.Count(i => i.Status == "Pending"),
-                ApprovedRequests = instances.Count(i => i.Status == "Completed"),
-                RejectedRequests = instances.Count(i => i.Status == "Rejected"),
+                PendingRequests  = instances.Count(i => i.WorkflowState == WorkflowStatus.Pending),
+                ApprovedRequests = instances.Count(i => i.WorkflowState == WorkflowStatus.Completed),
+                RejectedRequests = instances.Count(i => i.WorkflowState == WorkflowStatus.Rejected),
                 RecentInstances  = recent
             };
         }
@@ -56,6 +60,7 @@ namespace WorkflowEngine.Application.Services
 
         public async Task<List<ApplicationResponse>> GetApplications()
             => await _context.Applications
+                .Where(a => a.status == EntityStatus.Active)
                 .Select(a => MapApplication(a))
                 .ToListAsync();
 
@@ -71,7 +76,7 @@ namespace WorkflowEngine.Application.Services
             {
                 ApplicationCode = request.ApplicationCode,
                 ApplicationName = request.ApplicationName,
-                IsActive = request.IsActive
+                status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive
             };
             _context.Applications.Add(entity);
             await _context.SaveChangesAsync();
@@ -84,7 +89,7 @@ namespace WorkflowEngine.Application.Services
             if (entity == null) return;
             entity.ApplicationCode = request.ApplicationCode;
             entity.ApplicationName = request.ApplicationName;
-            entity.IsActive = request.IsActive;
+            entity.status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive;
             await _context.SaveChangesAsync();
         }
 
@@ -98,12 +103,13 @@ namespace WorkflowEngine.Application.Services
 
         public async Task<List<WorkflowResponse>> GetAllWorkflows()
             => await _context.Workflows
+                .Where(w => w.status == EntityStatus.Active)
                 .Select(w => MapWorkflow(w))
                 .ToListAsync();
 
         public async Task<List<WorkflowResponse>> GetWorkflows(int applicationId)
             => await _context.Workflows
-                .Where(w => w.ApplicationId == applicationId)
+                .Where(w => w.ApplicationId == applicationId && w.status == EntityStatus.Active)
                 .Select(w => MapWorkflow(w))
                 .ToListAsync();
 
@@ -120,7 +126,7 @@ namespace WorkflowEngine.Application.Services
                 ApplicationId = request.ApplicationId,
                 WorkflowName = request.WorkflowName,
                 Version = request.Version,
-                IsActive = request.IsActive
+                status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive
             };
             _context.Workflows.Add(entity);
             await _context.SaveChangesAsync();
@@ -134,7 +140,7 @@ namespace WorkflowEngine.Application.Services
             entity.ApplicationId = request.ApplicationId;
             entity.WorkflowName = request.WorkflowName;
             entity.Version = request.Version;
-            entity.IsActive = request.IsActive;
+            entity.status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive;
             await _context.SaveChangesAsync();
         }
 
@@ -226,12 +232,13 @@ namespace WorkflowEngine.Application.Services
 
         public async Task<List<RuleResponse>> GetAllRules()
             => await _context.WorkflowRules
+                .Where(r => r.status == EntityStatus.Active)
                 .Select(r => MapRule(r))
                 .ToListAsync();
 
         public async Task<List<RuleResponse>> GetWorkflowRules(int levelId)
             => await _context.WorkflowRules
-                .Where(r => r.LevelId == levelId)
+                .Where(r => r.LevelId == levelId && r.status == EntityStatus.Active)
                 .Select(r => MapRule(r))
                 .ToListAsync();
 
@@ -248,7 +255,7 @@ namespace WorkflowEngine.Application.Services
                 LevelId = request.LevelId,
                 RuleExpression = request.RuleExpression,
                 Priority = request.Priority,
-                IsActive = request.IsActive
+                status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive
             };
             _context.WorkflowRules.Add(entity);
             await _context.SaveChangesAsync();
@@ -261,7 +268,7 @@ namespace WorkflowEngine.Application.Services
             entity.LevelId = request.LevelId;
             entity.RuleExpression = request.RuleExpression;
             entity.Priority = request.Priority;
-            entity.IsActive = request.IsActive;
+            entity.status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive;
             await _context.SaveChangesAsync();
         }
 
@@ -400,7 +407,7 @@ namespace WorkflowEngine.Application.Services
                 WorkflowId = request.WorkflowId,
                 FromLevel = request.FromLevel,
                 ToLevel = request.ToLevel,
-                Action = request.Action,
+                Action = Enum.Parse<WorkflowAction>(request.Action),
                 TransitionType = request.TransitionType
             };
             _context.WorkflowTransitions.Add(entity);
@@ -414,7 +421,7 @@ namespace WorkflowEngine.Application.Services
             entity.WorkflowId = request.WorkflowId;
             entity.FromLevel = request.FromLevel;
             entity.ToLevel = request.ToLevel;
-            entity.Action = request.Action;
+            entity.Action = Enum.Parse<WorkflowAction>(request.Action);
             entity.TransitionType = request.TransitionType;
             await _context.SaveChangesAsync();
         }
@@ -442,12 +449,13 @@ namespace WorkflowEngine.Application.Services
         {
             var entity = await _context.WorkflowInstances.FindAsync(id);
             if (entity == null) return;
+
             entity.WorkflowId = request.WorkflowId;
             entity.ApplicationCode = request.ApplicationCode;
             entity.RequestId = request.RequestId;
             entity.CurrentLevel = request.CurrentLevel;
-            entity.Status = request.Status;
-            entity.CreatedBy = request.CreatedBy;
+            entity.WorkflowState = Enum.Parse<WorkflowStatus>(request.WorkflowState ?? "Pending");
+            
             await _context.SaveChangesAsync();
         }
 
@@ -503,27 +511,28 @@ namespace WorkflowEngine.Application.Services
 
         public async Task AddAssignment(AssignmentRequest request)
         {
-            var entity = new WorkflowAssignment
+            var assignment = new WorkflowAssignment
             {
                 InstanceId = request.InstanceId,
                 LevelNumber = request.LevelNumber,
                 ApproverUserId = request.ApproverUserId,
-                Status = request.Status,
-                AssignedDate = DateTime.UtcNow
+                AssignmentStatus = Enum.Parse<WorkflowStatus>(request.AssignmentStatus ?? "Pending"),
+                created_by = "System",
+                created_date = DateTime.Now
             };
-            _context.WorkflowAssignments.Add(entity);
+            _context.WorkflowAssignments.Add(assignment);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAssignment(int id, AssignmentRequest request)
         {
-            var entity = await _context.WorkflowAssignments.FindAsync(id);
-            if (entity == null) return;
-            entity.InstanceId = request.InstanceId;
-            entity.LevelNumber = request.LevelNumber;
-            entity.ApproverUserId = request.ApproverUserId;
-            entity.Status = request.Status;
-            entity.ActionDate = DateTime.UtcNow;
+            var assignment = await _context.WorkflowAssignments.FindAsync(id);
+            if (assignment == null) return;
+            assignment.InstanceId = request.InstanceId;
+            assignment.LevelNumber = request.LevelNumber;
+            assignment.ApproverUserId = request.ApproverUserId;
+            assignment.AssignmentStatus = Enum.Parse<WorkflowStatus>(request.AssignmentStatus ?? "Pending");
+            
             await _context.SaveChangesAsync();
         }
 
@@ -573,8 +582,7 @@ namespace WorkflowEngine.Application.Services
                 ToUserId = request.ToUserId,
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
-                IsActive = request.IsActive,
-                CreatedDate = DateTime.UtcNow
+                status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive
             };
             _context.WorkflowDelegations.Add(entity);
             await _context.SaveChangesAsync();
@@ -589,7 +597,7 @@ namespace WorkflowEngine.Application.Services
             entity.ToUserId = request.ToUserId;
             entity.StartDate = request.StartDate;
             entity.EndDate = request.EndDate;
-            entity.IsActive = request.IsActive;
+            entity.status = request.IsActive ? EntityStatus.Active : EntityStatus.Inactive;
             await _context.SaveChangesAsync();
         }
 
@@ -709,7 +717,11 @@ namespace WorkflowEngine.Application.Services
             ApplicationId = e.ApplicationId,
             ApplicationCode = e.ApplicationCode,
             ApplicationName = e.ApplicationName,
-            IsActive = e.IsActive
+            IsActive = e.status == EntityStatus.Active,
+            CreatedBy = e.created_by,
+            CreatedDate = e.created_date,
+            UpdatedBy = e.updated_by,
+            UpdatedDate = e.updated_date
         };
 
         private static WorkflowResponse MapWorkflow(Workflow e) => new()
@@ -718,7 +730,9 @@ namespace WorkflowEngine.Application.Services
             ApplicationId = e.ApplicationId,
             WorkflowName = e.WorkflowName,
             Version = e.Version,
-            IsActive = e.IsActive
+            IsActive = e.status == EntityStatus.Active,
+            CreatedBy = e.created_by,
+            CreatedDate = e.created_date
         };
 
         private static LevelResponse MapLevel(WorkflowLevel e, string workflowName = null) => new()
@@ -738,7 +752,7 @@ namespace WorkflowEngine.Application.Services
             LevelId = e.LevelId,
             RuleExpression = e.RuleExpression,
             Priority = e.Priority,
-            IsActive = e.IsActive
+            IsActive = e.status == EntityStatus.Active
         };
 
         private static TransitionResponse MapTransition(WorkflowTransition e) => new()
@@ -747,7 +761,7 @@ namespace WorkflowEngine.Application.Services
             WorkflowId = e.WorkflowId,
             FromLevel = e.FromLevel,
             ToLevel = e.ToLevel,
-            Action = e.Action,
+            Action = e.Action.ToString(),
             TransitionType = e.TransitionType
         };
 
@@ -758,9 +772,9 @@ namespace WorkflowEngine.Application.Services
             ApplicationCode = e.ApplicationCode,
             RequestId = e.RequestId,
             CurrentLevel = e.CurrentLevel,
-            Status = e.Status,
-            CreatedBy = e.CreatedBy,
-            CreatedDate = e.CreatedDate,
+            WorkflowState = e.WorkflowState.ToString(),
+            CreatedBy = e.created_by,
+            CreatedDate = e.created_date ?? DateTime.MinValue,
             CompletedDate = e.CompletedDate
         };
 
@@ -778,8 +792,8 @@ namespace WorkflowEngine.Application.Services
             InstanceId = e.InstanceId,
             LevelNumber = e.LevelNumber,
             ApproverUserId = e.ApproverUserId,
-            Status = e.Status,
-            AssignedDate = e.AssignedDate,
+            AssignmentStatus = e.AssignmentStatus.ToString(),
+            AssignedDate = e.created_date ?? DateTime.MinValue,
             ActionDate = e.ActionDate
         };
 
@@ -789,9 +803,9 @@ namespace WorkflowEngine.Application.Services
             InstanceId = e.InstanceId,
             LevelNumber = e.LevelNumber,
             UserId = e.UserId,
-            Action = e.Action,
+            Action = e.Action.ToString(),
             Remarks = e.Remarks,
-            ActionDate = e.ActionDate
+            ActionDate = e.created_date ?? DateTime.MinValue
         };
 
         private static AuditLogResponse MapAuditLog(AuditLog e) => new()
@@ -810,8 +824,8 @@ namespace WorkflowEngine.Application.Services
             ToUserId = e.ToUserId,
             StartDate = e.StartDate,
             EndDate = e.EndDate,
-            IsActive = e.IsActive,
-            CreatedDate = e.CreatedDate
+            IsActive = e.status == EntityStatus.Active,
+            CreatedDate = e.created_date ?? DateTime.MinValue
         };
 
         private static DesignerNodeResponse MapNode(WorkflowDesignerNode e) => new()

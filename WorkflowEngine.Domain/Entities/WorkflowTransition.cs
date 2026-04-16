@@ -2,9 +2,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using WorkflowEngine.Domain.Base;
+
+using WorkflowEngine.Domain.Enums;
+
 namespace WorkflowEngine.Domain.Entities
 {
-    public class WorkflowTransition
+    public class WorkflowTransition : MetaFields
     {
         [Key]
         public int TransitionId { get; set; }
@@ -12,8 +16,7 @@ namespace WorkflowEngine.Domain.Entities
         public int FromLevel { get; set; }
         public int ToLevel { get; set; }
         
-        [MaxLength(20)]
-        public string Action { get; set; } // 'Approve', 'Reject'
+        public WorkflowAction Action { get; set; }
         
         [MaxLength(20)]
         public string TransitionType { get; set; } // 'Next', 'Previous', 'Specific', 'Dynamic'

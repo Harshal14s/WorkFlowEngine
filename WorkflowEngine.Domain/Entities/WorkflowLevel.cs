@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using WorkflowEngine.Domain.Base;
+
 namespace WorkflowEngine.Domain.Entities
 {
-    public class WorkflowLevel
+    public class WorkflowLevel : MetaFields
     {
         [Key]
         public int LevelId { get; set; }
